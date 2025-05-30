@@ -13,3 +13,11 @@ make run
 ```
 make test
 ```
+
+# How to run the linter
+
+```
+make lint
+```
+
+This command will sort imports consistently, fix whitespaces around the code and show errors in case of any other lint issues.
