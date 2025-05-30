@@ -6,6 +6,7 @@ import (
 	"log"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/taylankasap/message-sender/model"
 )
 
 type Database struct {
@@ -56,4 +57,25 @@ func (d *Database) Seed() error {
 		('Hello universe!', '+14181234567', 'unsent')
 	`)
 	return err
+}
+
+// FetchUnsentMessages fetches up to n unsent messages from the database
+func (d *Database) FetchUnsentMessages(limit int) ([]model.Message, error) {
+	rows, err := d.Conn.Query("SELECT id, content, recipient, status, sent_at FROM message WHERE status = 'unsent' ORDER BY id ASC LIMIT ?", limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var messages []model.Message
+	for rows.Next() {
+		var m model.Message
+		err := rows.Scan(&m.ID, &m.Content, &m.Recipient, &m.Status, &m.SentAt)
+		if err != nil {
+			return nil, err
+		}
+		messages = append(messages, m)
+	}
+
+	return messages, nil
 }
