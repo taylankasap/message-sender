@@ -2,10 +2,17 @@ package model
 
 import "time"
 
+type MessageStatus string
+
+const (
+	StatusUnsent MessageStatus = "unsent"
+	StatusSent   MessageStatus = "sent"
+)
+
 type Message struct {
 	ID        int
 	Content   string
 	Recipient string
-	Status    string
+	Status    MessageStatus
 	SentAt    *time.Time
 }

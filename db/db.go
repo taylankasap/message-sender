@@ -53,15 +53,15 @@ func (d *Database) Seed() error {
 	}
 
 	_, err = d.Conn.Exec(`INSERT INTO message (content, recipient, status) VALUES
-		('Insider - Project', '+905551111111', 'unsent'),
-		('Hello universe!', '+14181234567', 'unsent')
-	`)
+		('Insider - Project', '+905551111111', $1),
+		('Hello universe!', '+14181234567', $1)
+	`, model.StatusUnsent)
 	return err
 }
 
 // FetchUnsentMessages fetches up to n unsent messages from the database
 func (d *Database) FetchUnsentMessages(limit int) ([]model.Message, error) {
-	rows, err := d.Conn.Query("SELECT id, content, recipient, status, sent_at FROM message WHERE status = 'unsent' ORDER BY id ASC LIMIT ?", limit)
+	rows, err := d.Conn.Query("SELECT id, content, recipient, status, sent_at FROM message WHERE status = $1 ORDER BY id ASC LIMIT $2", model.StatusUnsent, limit)
 	if err != nil {
 		return nil, err
 	}

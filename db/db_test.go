@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/taylankasap/message-sender/db"
+	"github.com/taylankasap/message-sender/model"
 )
 
 func TestNew(t *testing.T) {
@@ -51,7 +52,7 @@ func TestDatabase_FetchUnsentMessages(t *testing.T) {
 		require.Len(tt, msgs, 2)
 
 		for _, m := range msgs {
-			require.Equal(tt, "unsent", m.Status)
+			require.Equal(tt, model.StatusUnsent, m.Status)
 		}
 	})
 }
