@@ -17,13 +17,15 @@ func TestNew(t *testing.T) {
 		require.NoError(tt, err)
 		require.NotNil(tt, database.Conn)
 
+		defer func() {
+			database.Conn.Close()
+			_ = os.Remove(testFile)
+		}()
+
 		row := database.Conn.QueryRow("SELECT name FROM sqlite_master WHERE type='table' AND name='message'")
 		var tableName string
 		err = row.Scan(&tableName)
 		require.NoError(tt, err)
 		require.Equal(tt, "message", tableName)
-
-		database.Conn.Close()
-		_ = os.Remove(testFile)
 	})
 }
