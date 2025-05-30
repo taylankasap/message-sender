@@ -35,3 +35,25 @@ func New(cfg *Config) (*Database, error) {
 
 	return &Database{Conn: db}, nil
 }
+
+// Seed inserts initial messages if the table is empty
+func (d *Database) Seed() error {
+	row := d.Conn.QueryRow("SELECT COUNT(*) FROM message")
+
+	var count int
+
+	err := row.Scan(&count)
+	if err != nil {
+		return err
+	}
+
+	if count > 0 {
+		return nil // already seeded
+	}
+
+	_, err = d.Conn.Exec(`INSERT INTO message (content, recipient, status) VALUES
+		('Insider - Project', '+905551111111', 'unsent'),
+		('Hello universe!', '+14181234567', 'unsent')
+	`)
+	return err
+}
