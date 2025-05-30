@@ -52,10 +52,14 @@ func (d *Database) Seed() error {
 		return nil // already seeded
 	}
 
-	_, err = d.Conn.Exec(`INSERT INTO message (content, recipient, status) VALUES
-		('Insider - Project', '+905551111111', $1),
-		('Hello universe!', '+14181234567', $1)
-	`, model.StatusUnsent)
+	_, err = d.Conn.Exec(`INSERT INTO message (content, recipient, status, sent_at) VALUES
+		('Huge sale :)', '+905551234567', $1, '2024-02-12 03:00:06'),
+		('Insider - Project', '+905551111111', $2, NULL),
+		('Tiny sale :(', '+905551234567', $1, '2025-05-30 21:17:09'),
+		('Hello universe!', '+14181234567', $2, NULL),
+		('You can use this one time password to log in to somewhere: 526184', '+821260542022', $2, NULL),
+		('Check out our products!', '+821251876804', $2, NULL)
+	`, model.StatusSent, model.StatusUnsent)
 	return err
 }
 
