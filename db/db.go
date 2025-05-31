@@ -85,6 +85,27 @@ func (d *Database) FetchUnsentMessages(limit int) ([]model.Message, error) {
 	return messages, nil
 }
 
+// FetchSentMessages fetches all sent messages from the database
+func (d *Database) FetchSentMessages() ([]model.Message, error) {
+	rows, err := d.Conn.Query("SELECT id, content, recipient, status, sent_at FROM message WHERE status = $1 ORDER BY id ASC", model.StatusSent)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	messages := []model.Message{}
+	for rows.Next() {
+		var m model.Message
+		err := rows.Scan(&m.ID, &m.Content, &m.Recipient, &m.Status, &m.SentAt)
+		if err != nil {
+			return nil, err
+		}
+		messages = append(messages, m)
+	}
+
+	return messages, nil
+}
+
 // MarkMessageAsSent updates the status and sent_at fields for a message
 func (d *Database) MarkMessageAsSent(id int, sentAt time.Time) error {
 	_, err := d.Conn.Exec(

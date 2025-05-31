@@ -6,6 +6,7 @@ import (
 )
 
 type Server struct {
+	DB           DBInterface
 	resumePauser ResumePauser
 }
 
@@ -15,8 +16,9 @@ type ResumePauser interface {
 	Pause()
 }
 
-func NewServer(resumePauser ResumePauser) Server {
+func NewServer(database DBInterface, resumePauser ResumePauser) Server {
 	return Server{
+		DB:           database,
 		resumePauser: resumePauser,
 	}
 }
@@ -35,4 +37,16 @@ func (s Server) ChangeState(w http.ResponseWriter, r *http.Request, params Chang
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(State{Running: params.Action == Resume})
+}
+
+// GetSentMessages returns all sent messages
+func (s Server) GetSentMessages(w http.ResponseWriter, r *http.Request) {
+	msgs, err := s.DB.FetchSentMessages()
+	if err != nil {
+		http.Error(w, "failed to fetch sent messages", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(msgs)
 }

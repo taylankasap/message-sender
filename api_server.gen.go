@@ -8,8 +8,16 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/oapi-codegen/runtime"
+)
+
+// Defines values for MessageStatus.
+const (
+	Invalid MessageStatus = "invalid"
+	Sent    MessageStatus = "sent"
+	Unsent  MessageStatus = "unsent"
 )
 
 // Defines values for ChangeStateParamsAction.
@@ -17,6 +25,21 @@ const (
 	Pause  ChangeStateParamsAction = "pause"
 	Resume ChangeStateParamsAction = "resume"
 )
+
+// Message defines model for Message.
+type Message struct {
+	Content   string        `json:"content"`
+	Id        int           `json:"id"`
+	Recipient string        `json:"recipient"`
+	SentAt    time.Time     `json:"sentAt"`
+	Status    MessageStatus `json:"status"`
+}
+
+// MessageStatus defines model for Message.Status.
+type MessageStatus string
+
+// SentMessagesResponse defines model for SentMessagesResponse.
+type SentMessagesResponse = []Message
 
 // State defines model for State.
 type State struct {
@@ -37,6 +60,9 @@ type ServerInterface interface {
 	// Resume or pause the automatic message sender
 	// (GET /change-state)
 	ChangeState(w http.ResponseWriter, r *http.Request, params ChangeStateParams)
+	// Get sent messages
+	// (GET /sent-messages)
+	GetSentMessages(w http.ResponseWriter, r *http.Request)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -73,6 +99,20 @@ func (siw *ServerInterfaceWrapper) ChangeState(w http.ResponseWriter, r *http.Re
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.ChangeState(w, r, params)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// GetSentMessages operation middleware
+func (siw *ServerInterfaceWrapper) GetSentMessages(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.GetSentMessages(w, r)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -203,6 +243,7 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	}
 
 	m.HandleFunc("GET "+options.BaseURL+"/change-state", wrapper.ChangeState)
+	m.HandleFunc("GET "+options.BaseURL+"/sent-messages", wrapper.GetSentMessages)
 
 	return m
 }

@@ -28,6 +28,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/State'
+  /sent-messages:
+    get:
+      summary: Get sent messages
+      description: Retrieve a list of messages that have been sent successfully.
+      operationId: getSentMessages
+      responses:
+        '200':
+          description: List of sent messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SentMessagesResponse'
 components:
   schemas:
     State:
@@ -38,3 +50,33 @@ components:
         running:
           type: boolean
           example: true
+    Message:
+      type: object
+      required:
+        - id
+        - content
+        - recipient
+        - status
+        - sentAt
+      properties:
+        id:
+          type: integer
+          example: 1
+        content:
+          type: string
+          example: 'Hello!'
+        recipient:
+          type: string
+          example: '+1234567890'
+        status:
+          type: string
+          enum: [sent, unsent, invalid]
+          example: sent
+        sentAt:
+          type: string
+          format: date-time
+          example: '2025-05-31T10:00:00Z'
+    SentMessagesResponse:
+      type: array
+      items:
+            $ref: '#/components/schemas/Message'

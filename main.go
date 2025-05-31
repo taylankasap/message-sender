@@ -43,7 +43,7 @@ func main() {
 	go dispatcher.Start()
 
 	// API server
-	server := NewServer(dispatcher)
+	server := NewServer(database, dispatcher)
 
 	r := http.NewServeMux()
 
