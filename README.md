@@ -14,6 +14,7 @@ docker compose up
     - http://localhost:8080/sent-messages - Get sent messages
     - http://localhost:8080/change-state?action=pause - Pause the message sender
     - http://localhost:8080/change-state?action=resume - Resume the message sender
+    (You can also use any [OpenAPI UI](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/taylankasap/message-sender/refs/heads/master/api/openapi.yaml) to see the endpoints)
 - The SQLite database will be persisted in `data/db.sqlite3`. The app will seed the database on first start-up.
 - You can list the keys in Redis with: `docker compose exec -it redis redis-cli KEYS '*'`
 
