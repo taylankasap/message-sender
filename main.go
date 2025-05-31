@@ -14,7 +14,7 @@ import (
 
 func main() {
 	// database
-	database, databaseErr := db.New(&db.Config{Filename: "db.sqlite3"})
+	database, databaseErr := db.New(&db.Config{Filename: "data/db.sqlite3"})
 	if databaseErr != nil {
 		panic(databaseErr)
 	}
