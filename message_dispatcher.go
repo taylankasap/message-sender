@@ -21,6 +21,11 @@ type MessageDispatcher struct {
 	Client    somethirdparty.ClientWithResponsesInterface
 	BatchSize int
 	Period    time.Duration
+
+	paused   bool
+	pauseMu  sync.Mutex
+	pauseCh  chan struct{}
+	resumeCh chan struct{}
 }
 
 type MessageDispatcherConfig struct {
@@ -29,12 +34,15 @@ type MessageDispatcherConfig struct {
 }
 
 func NewMessageDispatcher(database DBInterface, client somethirdparty.ClientWithResponsesInterface, config *MessageDispatcherConfig) *MessageDispatcher {
-	return &MessageDispatcher{
+	d := &MessageDispatcher{
 		DB:        database,
 		Client:    client,
 		BatchSize: config.BatchSize,
 		Period:    config.Period,
+		pauseCh:   make(chan struct{}),
+		resumeCh:  make(chan struct{}),
 	}
+	return d
 }
 
 func (d *MessageDispatcher) Start() {
@@ -42,6 +50,16 @@ func (d *MessageDispatcher) Start() {
 	defer ticker.Stop()
 
 	for {
+		d.pauseMu.Lock()
+		paused := d.paused
+		pauseCh := d.pauseCh
+		d.pauseMu.Unlock()
+
+		if paused {
+			<-pauseCh // Block until resumed
+			continue
+		}
+
 		d.processUnsentMessages()
 		<-ticker.C
 	}
@@ -81,4 +99,26 @@ func (d *MessageDispatcher) processUnsentMessages() {
 		}(msg)
 	}
 	wg.Wait()
+}
+
+func (d *MessageDispatcher) Pause() {
+	d.pauseMu.Lock()
+	defer d.pauseMu.Unlock()
+	if !d.paused {
+		d.paused = true
+		close(d.pauseCh)
+	}
+	log.Print("dispatcher is paused")
+}
+
+func (d *MessageDispatcher) Resume() {
+	d.pauseMu.Lock()
+	defer d.pauseMu.Unlock()
+	if d.paused {
+		d.paused = false
+		d.pauseCh = make(chan struct{})
+		close(d.resumeCh)
+		d.resumeCh = make(chan struct{})
+	}
+	log.Print("dispatcher is resumed")
 }

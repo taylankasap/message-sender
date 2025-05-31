@@ -1,0 +1,40 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Message Sender API
+servers:
+  - url: http://localhost:8080
+    description: Message sender API for local testing
+paths:
+  /change-state:
+    get:
+      summary: Resume or pause the automatic message sender
+      description: >
+        This endpoint allows you to change the state of the automatic message sender.
+        Use this to either resume or pause the sending of messages.
+      operationId: changeState
+      parameters:
+        - name: action
+          in: query
+          description: Action to perform on the message sender
+          required: true
+          schema:
+            type: string
+            enum: [resume, pause]
+      responses:
+        '200':
+          description: State changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/State'
+components:
+  schemas:
+    State:
+      type: object
+      required:
+        - running
+      properties:
+        running:
+          type: boolean
+          example: true

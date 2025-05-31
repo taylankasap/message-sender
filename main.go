@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net/http"
 	"time"
 
 	"github.com/taylankasap/message-sender/db"
@@ -9,6 +11,7 @@ import (
 )
 
 func main() {
+	// database
 	database, databaseErr := db.New(&db.Config{Filename: "db.sqlite3"})
 	if databaseErr != nil {
 		panic(databaseErr)
@@ -19,12 +22,14 @@ func main() {
 		panic(fmt.Errorf("failed to seed database: %w", err))
 	}
 
+	// third party client
 	const someThirdPartyBaseUrl = "https://webhook.site/7f22bdd7-ae91-48ca-be94-90bc6688bac1"
 	client, err := somethirdparty.NewClientWithResponses(someThirdPartyBaseUrl)
 	if err != nil {
 		panic(err)
 	}
 
+	// message dispatcher
 	dispatcherConfig := &MessageDispatcherConfig{
 		Period:    2 * time.Minute,
 		BatchSize: 2,
@@ -32,5 +37,17 @@ func main() {
 	dispatcher := NewMessageDispatcher(database, client, dispatcherConfig)
 	go dispatcher.Start()
 
-	select {} // keep main alive
+	// API server
+	server := NewServer(dispatcher)
+
+	r := http.NewServeMux()
+
+	h := HandlerFromMux(server, r)
+
+	s := &http.Server{
+		Handler: h,
+		Addr:    "0.0.0.0:8080",
+	}
+
+	log.Fatal(s.ListenAndServe())
 }

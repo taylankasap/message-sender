@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
 	"github.com/taylankasap/message-sender/model"
 	somethirdparty "github.com/taylankasap/message-sender/some_third_party"
 	"go.uber.org/mock/gomock"
@@ -41,4 +42,37 @@ func TestMessageDispatcher_Start(t *testing.T) {
 		go dispatcher.Start()
 		time.Sleep(1 * time.Millisecond)
 	})
+}
+
+func TestMessageDispatcher_Pause(t *testing.T) {
+	d := &MessageDispatcher{
+		pauseCh:  make(chan struct{}),
+		resumeCh: make(chan struct{}),
+	}
+
+	require.False(t, d.paused, "dispatcher should not be paused initially")
+
+	d.Pause()
+	require.True(t, d.paused, "dispatcher should be paused after Pause() call")
+
+	// Calling Pause again should not panic or close an already closed channel
+	d.Pause()
+	require.True(t, d.paused, "dispatcher should remain paused after second Pause() call")
+}
+
+func TestMessageDispatcher_Resume(t *testing.T) {
+	d := &MessageDispatcher{
+		paused:   true,
+		pauseCh:  make(chan struct{}),
+		resumeCh: make(chan struct{}),
+	}
+
+	require.True(t, d.paused, "dispatcher should be paused initially")
+
+	d.Resume()
+	require.False(t, d.paused, "dispatcher should not be paused after Resume() call")
+
+	// Calling Resume again should not panic or change state
+	d.Resume()
+	require.False(t, d.paused, "dispatcher should remain unpaused after second Resume() call")
 }
