@@ -39,3 +39,18 @@ This command will sort imports consistently, fix whitespaces around the code and
 ### Notes
 
 We're using OpenAPI 3.0.0 instead of 3.1.0 because oapi-codegen currently does not support 3.1.0.
+
+### Possible improvements
+
+These are possible improvements that could be done if this was a production app:
+
+- Use another database on a remote server
+- Create multiple config files for different environments instead of giving everything in main.go
+- Create golangci-lint config to make it stay consistent among updates
+- Check the 3rd party API response for errors instead of always setting the message status to ‘sent’
+- Implement retries with exponential backoff in MessageDispatcher
+- Pass logger around instead of using global logger
+- Add pagination to get sent messages endpoint
+- Watch db for changes and send a message if within 2 minute rate limit, rather than checking every 2 minutes (which causes some delay for new messages)
+- Add message character limit to the database too
+- Handle edge cases such as message is sent but could not be marked as sent
