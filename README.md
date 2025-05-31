@@ -2,6 +2,17 @@
 
 Every 2 minutes, read database and send the next unsent message.
 
+### Build and run with Docker
+
+To start the app:
+
+```sh
+docker compose up
+```
+
+- The app will be available at http://localhost:8080
+- The SQLite database will be persisted in `db.sqlite3` in your project directory. The app will seed the database on first start-up.
+
 # How to start the app
 
 ```
