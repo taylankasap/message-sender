@@ -54,9 +54,9 @@ func (d *Database) Seed() error {
 	}
 
 	_, err = d.Conn.Exec(`INSERT INTO message (content, recipient, status, sent_at) VALUES
-		('Huge sale :)', '+905551234567', $1, '2024-02-12T03:00:06Z03:00'),
+		('Huge sale :)', '+905551234567', $1, '2024-02-12T03:00:06+03:00'),
 		('Insider - Project', '+905551111111', $2, NULL),
-		('Tiny sale :(', '+905551234567', $1, '2025-05-30T21:17:09Z07:00'),
+		('Tiny sale :(', '+905551234567', $1, '2025-05-30T21:17:09+07:00'),
 		('Hello universe!', '+14181234567', $2, NULL),
 		('You can use this one time password to log in to somewhere: 526184', '+821260542022', $2, NULL),
 		('Check out our products!', '+821251876804', $2, NULL)
