@@ -1,6 +1,6 @@
 # message-sender
 
-Every 2 minutes, read database and send the next unsent message.
+Every 2 minutes, read database and send the unsent messages next in line.
 
 ### Build and run with Docker
 
@@ -42,7 +42,7 @@ We're using OpenAPI 3.0.0 instead of 3.1.0 because oapi-codegen currently does n
 
 ### Possible improvements
 
-These are possible improvements that could be done if this was a production app:
+These are possible improvements that could've been done if this was a production app:
 
 - Use another database on a remote server
 - Create multiple config files for different environments instead of giving everything in main.go
