@@ -11,6 +11,9 @@ docker compose up
 ```
 
 - The app will be available at http://localhost:8080
+    - http://localhost:8080/sent-messages - Get sent messages
+    - http://localhost:8080/change-state?action=pause - Pause the message sender
+    - http://localhost:8080/change-state?action=resume - Resume the message sender
 - The SQLite database will be persisted in `data/db.sqlite3`. The app will seed the database on first start-up.
 - You can list the keys in Redis with: `docker compose exec -it redis redis-cli KEYS '*'`
 
