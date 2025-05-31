@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/taylankasap/message-sender/model"
@@ -53,9 +54,9 @@ func (d *Database) Seed() error {
 	}
 
 	_, err = d.Conn.Exec(`INSERT INTO message (content, recipient, status, sent_at) VALUES
-		('Huge sale :)', '+905551234567', $1, '2024-02-12 03:00:06'),
+		('Huge sale :)', '+905551234567', $1, '2024-02-12T03:00:06Z03:00'),
 		('Insider - Project', '+905551111111', $2, NULL),
-		('Tiny sale :(', '+905551234567', $1, '2025-05-30 21:17:09'),
+		('Tiny sale :(', '+905551234567', $1, '2025-05-30T21:17:09Z07:00'),
 		('Hello universe!', '+14181234567', $2, NULL),
 		('You can use this one time password to log in to somewhere: 526184', '+821260542022', $2, NULL),
 		('Check out our products!', '+821251876804', $2, NULL)
@@ -82,4 +83,13 @@ func (d *Database) FetchUnsentMessages(limit int) ([]model.Message, error) {
 	}
 
 	return messages, nil
+}
+
+// MarkMessageAsSent updates the status and sent_at fields for a message
+func (d *Database) MarkMessageAsSent(id int, sentAt time.Time) error {
+	_, err := d.Conn.Exec(
+		"UPDATE message SET status = ?, sent_at = ? WHERE id = ?",
+		model.StatusSent, sentAt.Format(time.RFC3339), id,
+	)
+	return err
 }
