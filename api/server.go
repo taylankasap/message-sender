@@ -28,6 +28,7 @@ func NewServer(database DBInterface, resumePauser ResumePauser) Server {
 	}
 }
 
+// ChangeState changes the state of the server to either paused or resumed
 func (s Server) ChangeState(w http.ResponseWriter, r *http.Request, params ChangeStateParams) {
 	switch params.Action {
 	case Pause:
