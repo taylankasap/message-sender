@@ -7,7 +7,7 @@ import (
 
 type Server struct {
 	DB           DBInterface
-	resumePauser ResumePauser
+	ResumePauser ResumePauser
 }
 
 //go:generate go tool mockgen --package=api --destination=mock_resume_pauser.go . ResumePauser
@@ -24,16 +24,16 @@ type DBInterface interface {
 func NewServer(database DBInterface, resumePauser ResumePauser) Server {
 	return Server{
 		DB:           database,
-		resumePauser: resumePauser,
+		ResumePauser: resumePauser,
 	}
 }
 
 func (s Server) ChangeState(w http.ResponseWriter, r *http.Request, params ChangeStateParams) {
 	switch params.Action {
 	case Pause:
-		s.resumePauser.Pause()
+		s.ResumePauser.Pause()
 	case Resume:
-		s.resumePauser.Resume()
+		s.ResumePauser.Resume()
 	default:
 		http.Error(w, "invalid action", http.StatusBadRequest)
 		return

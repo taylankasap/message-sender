@@ -20,7 +20,7 @@ func TestServer_ChangeState(t *testing.T) {
 		mockResumePauser := NewMockResumePauser(ctrl)
 		mockResumePauser.EXPECT().Pause()
 
-		s := Server{resumePauser: mockResumePauser}
+		s := Server{ResumePauser: mockResumePauser}
 		r := httptest.NewRequest("GET", "/change-state?action=pause", nil)
 		w := httptest.NewRecorder()
 		s.ChangeState(w, r, ChangeStateParams{Action: Pause})
@@ -33,7 +33,7 @@ func TestServer_ChangeState(t *testing.T) {
 	t.Run("success - should call Resume and return 200", func(t *testing.T) {
 		mockResumePauser := NewMockResumePauser(ctrl)
 		mockResumePauser.EXPECT().Resume()
-		s := Server{resumePauser: mockResumePauser}
+		s := Server{ResumePauser: mockResumePauser}
 		r := httptest.NewRequest("GET", "/change-state?action=resume", nil)
 		w := httptest.NewRecorder()
 		s.ChangeState(w, r, ChangeStateParams{Action: Resume})
@@ -45,7 +45,7 @@ func TestServer_ChangeState(t *testing.T) {
 
 	t.Run("error - should return 400 for invalid action", func(t *testing.T) {
 		mockResumePauser := NewMockResumePauser(ctrl)
-		s := Server{resumePauser: mockResumePauser}
+		s := Server{ResumePauser: mockResumePauser}
 		r := httptest.NewRequest("GET", "/change-state?action=invalid", nil)
 		w := httptest.NewRecorder()
 		s.ChangeState(w, r, ChangeStateParams{Action: "invalid"})
