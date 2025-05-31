@@ -54,3 +54,4 @@ These are possible improvements that could be done if this was a production app:
 - Watch db for changes and send a message if within 2 minute rate limit, rather than checking every 2 minutes (which causes some delay for new messages)
 - Add message character limit to the database too
 - Handle edge cases such as message is sent but could not be marked as sent
+- CI/CD pipeline to run tests and linter on every commit
