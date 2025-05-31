@@ -25,7 +25,7 @@ func main() {
 	}
 
 	// third party client
-	const someThirdPartyBaseUrl = "https://webhook.site/7f22bdd7-ae91-48ca-be94-90bc6688bac1"
+	const someThirdPartyBaseUrl = "https://webhook.site/e8318d16-f749-428e-9103-f1ca43e8c0dd"
 	client, err := somethirdparty.NewClientWithResponses(someThirdPartyBaseUrl)
 	if err != nil {
 		panic(err)
