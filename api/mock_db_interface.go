@@ -12,7 +12,6 @@ package api
 import (
 	reflect "reflect"
 
-	model "github.com/taylankasap/message-sender/model"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -41,10 +40,10 @@ func (m *MockDBInterface) EXPECT() *MockDBInterfaceMockRecorder {
 }
 
 // FetchSentMessages mocks base method.
-func (m *MockDBInterface) FetchSentMessages() ([]model.Message, error) {
+func (m *MockDBInterface) FetchSentMessages() ([]Message, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FetchSentMessages")
-	ret0, _ := ret[0].([]model.Message)
+	ret0, _ := ret[0].([]Message)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

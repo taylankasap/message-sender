@@ -57,7 +57,6 @@ components:
         - content
         - recipient
         - status
-        - sentAt
       properties:
         id:
           type: integer

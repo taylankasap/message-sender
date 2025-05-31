@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"github.com/taylankasap/message-sender/model"
 	"go.uber.org/mock/gomock"
 )
 
@@ -66,9 +65,9 @@ func TestServer_GetSentMessages(t *testing.T) {
 		t1Parsed, err := time.Parse(time.RFC3339, t1)
 		require.NoError(tt, err)
 
-		expectedMessages := []model.Message{
-			{ID: 1, Content: "Hello!", Recipient: "+1234567890", Status: "sent", SentAt: &t1Parsed},
-			{ID: 2, Content: "World!", Recipient: "+9876543210", Status: "sent", SentAt: &t1Parsed},
+		expectedMessages := []Message{
+			{Id: 1, Content: "Hello!", Recipient: "+1234567890", Status: "sent", SentAt: &t1Parsed},
+			{Id: 2, Content: "World!", Recipient: "+9876543210", Status: "sent", SentAt: &t1Parsed},
 		}
 
 		mockDB.EXPECT().FetchSentMessages().Return(expectedMessages, nil)
@@ -79,10 +78,10 @@ func TestServer_GetSentMessages(t *testing.T) {
 
 		require.Equal(tt, http.StatusOK, w.Code)
 
-		var actualMessages []model.Message
+		var actualMessages []Message
 		require.NoError(tt, json.NewDecoder(w.Body).Decode(&actualMessages))
 		require.Len(tt, actualMessages, 2)
-		require.Equal(tt, expectedMessages[0].ID, actualMessages[0].ID)
+		require.Equal(tt, expectedMessages[0].Id, actualMessages[0].Id)
 		require.Equal(tt, expectedMessages[1].Content, actualMessages[1].Content)
 	})
 
@@ -90,7 +89,7 @@ func TestServer_GetSentMessages(t *testing.T) {
 		mockDB := NewMockDBInterface(ctrl)
 		s := Server{DB: mockDB}
 
-		expectedMessages := []model.Message{}
+		expectedMessages := []Message{}
 
 		mockDB.EXPECT().FetchSentMessages().Return(expectedMessages, nil)
 
@@ -100,7 +99,7 @@ func TestServer_GetSentMessages(t *testing.T) {
 
 		require.Equal(tt, http.StatusOK, w.Code)
 
-		var actualMessages []model.Message
+		var actualMessages []Message
 		require.NoError(tt, json.NewDecoder(w.Body).Decode(&actualMessages))
 		require.Equal(tt, expectedMessages, actualMessages)
 	})

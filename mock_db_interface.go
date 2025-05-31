@@ -13,7 +13,7 @@ import (
 	reflect "reflect"
 	time "time"
 
-	model "github.com/taylankasap/message-sender/model"
+	api "github.com/taylankasap/message-sender/api"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -42,10 +42,10 @@ func (m *MockDBInterface) EXPECT() *MockDBInterfaceMockRecorder {
 }
 
 // FetchSentMessages mocks base method.
-func (m *MockDBInterface) FetchSentMessages() ([]model.Message, error) {
+func (m *MockDBInterface) FetchSentMessages() ([]api.Message, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FetchSentMessages")
-	ret0, _ := ret[0].([]model.Message)
+	ret0, _ := ret[0].([]api.Message)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -57,10 +57,10 @@ func (mr *MockDBInterfaceMockRecorder) FetchSentMessages() *gomock.Call {
 }
 
 // FetchUnsentMessages mocks base method.
-func (m *MockDBInterface) FetchUnsentMessages(limit int) ([]model.Message, error) {
+func (m *MockDBInterface) FetchUnsentMessages(limit int) ([]api.Message, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FetchUnsentMessages", limit)
-	ret0, _ := ret[0].([]model.Message)
+	ret0, _ := ret[0].([]api.Message)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

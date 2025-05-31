@@ -8,15 +8,16 @@ import (
 	"sync"
 	"time"
 
+	"github.com/taylankasap/message-sender/api"
+
 	"github.com/redis/go-redis/v9"
-	"github.com/taylankasap/message-sender/model"
 	somethirdparty "github.com/taylankasap/message-sender/some_third_party"
 )
 
 //go:generate go tool mockgen --package=main --destination=mock_db_interface.go . DBInterface
 type DBInterface interface {
-	FetchUnsentMessages(limit int) ([]model.Message, error)
-	FetchSentMessages() ([]model.Message, error)
+	FetchUnsentMessages(limit int) ([]api.Message, error)
+	FetchSentMessages() ([]api.Message, error)
 	MarkMessageAsSent(id int, sentAt time.Time) error
 	MarkMessageAsInvalid(id int) error
 }
@@ -88,13 +89,13 @@ func (d *MessageDispatcher) processUnsentMessages() {
 	var wg sync.WaitGroup
 	for _, msg := range messages {
 		wg.Add(1)
-		go func(msg model.Message) {
+		go func(msg api.Message) {
 			defer wg.Done()
 			if len(msg.Content) > 160 {
-				log.Printf("message (id=%d) exceeds 160 character limit, marking as invalid", msg.ID)
-				err = d.DB.MarkMessageAsInvalid(msg.ID)
+				log.Printf("message (id=%d) exceeds 160 character limit, marking as invalid", msg.Id)
+				err = d.DB.MarkMessageAsInvalid(msg.Id)
 				if err != nil {
-					log.Printf("failed to mark message as invalid (id=%d): %v", msg.ID, err)
+					log.Printf("failed to mark message as invalid (id=%d): %v", msg.Id, err)
 				}
 				return
 			}
@@ -104,27 +105,27 @@ func (d *MessageDispatcher) processUnsentMessages() {
 				To:      msg.Recipient,
 			})
 			if err != nil {
-				log.Printf("failed to send message (id=%d): %v", msg.ID, err)
+				log.Printf("failed to send message (id=%d): %v", msg.Id, err)
 				return
 			}
 			if resp.JSON202 == nil {
-				log.Printf("unexpected response for message (id=%d)", msg.ID)
+				log.Printf("unexpected response for message (id=%d)", msg.Id)
 				return
 			}
 			now := time.Now()
-			err = d.DB.MarkMessageAsSent(msg.ID, now)
+			err = d.DB.MarkMessageAsSent(msg.Id, now)
 			if err != nil {
-				log.Printf("failed to update message status (id=%d): %v", msg.ID, err)
+				log.Printf("failed to update message status (id=%d): %v", msg.Id, err)
 			}
-			log.Printf("Message sent: id=%d, messageId=%s, sentAt=%s", msg.ID, resp.JSON202.MessageId, now)
+			log.Printf("Message sent: id=%d, messageId=%s, sentAt=%s", msg.Id, resp.JSON202.MessageId, now)
 
 			if d.Redis != nil {
-				redisKey := "sent_message:" + strconv.Itoa(msg.ID)
+				redisKey := "sent_message:" + strconv.Itoa(msg.Id)
 				redisValue := fmt.Sprintf(`{"messageId":"%s","sentAt":"%s"}`, resp.JSON202.MessageId, now.Format(time.RFC3339))
 
 				err := d.Redis.Set(ctx, redisKey, redisValue, 0).Err()
 				if err != nil {
-					log.Printf("failed to cache sent message in Redis (id=%d): %v", msg.ID, err)
+					log.Printf("failed to cache sent message in Redis (id=%d): %v", msg.Id, err)
 				}
 			}
 		}(msg)

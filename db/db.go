@@ -6,8 +6,9 @@ import (
 	"log"
 	"time"
 
+	"github.com/taylankasap/message-sender/api"
+
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/taylankasap/message-sender/model"
 )
 
 type Database struct {
@@ -60,22 +61,22 @@ func (d *Database) Seed() error {
 		('Hello universe!', '+14181234567', $2, NULL),
 		('You can use this one time password to log in to somewhere: 526184', '+821260542022', $2, NULL),
 		('Check out our products!', '+821251876804', $2, NULL)
-	`, model.StatusSent, model.StatusUnsent)
+	`, api.Sent, api.Unsent)
 	return err
 }
 
 // FetchUnsentMessages fetches up to n unsent messages from the database
-func (d *Database) FetchUnsentMessages(limit int) ([]model.Message, error) {
-	rows, err := d.Conn.Query("SELECT id, content, recipient, status, sent_at FROM message WHERE status = $1 ORDER BY id ASC LIMIT $2", model.StatusUnsent, limit)
+func (d *Database) FetchUnsentMessages(limit int) ([]api.Message, error) {
+	rows, err := d.Conn.Query("SELECT id, content, recipient, status, sent_at FROM message WHERE status = $1 ORDER BY id ASC LIMIT $2", api.Unsent, limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var messages []model.Message
+	var messages []api.Message
 	for rows.Next() {
-		var m model.Message
-		err := rows.Scan(&m.ID, &m.Content, &m.Recipient, &m.Status, &m.SentAt)
+		var m api.Message
+		err := rows.Scan(&m.Id, &m.Content, &m.Recipient, &m.Status, &m.SentAt)
 		if err != nil {
 			return nil, err
 		}
@@ -86,17 +87,17 @@ func (d *Database) FetchUnsentMessages(limit int) ([]model.Message, error) {
 }
 
 // FetchSentMessages fetches all sent messages from the database
-func (d *Database) FetchSentMessages() ([]model.Message, error) {
-	rows, err := d.Conn.Query("SELECT id, content, recipient, status, sent_at FROM message WHERE status = $1 ORDER BY id ASC", model.StatusSent)
+func (d *Database) FetchSentMessages() ([]api.Message, error) {
+	rows, err := d.Conn.Query("SELECT id, content, recipient, status, sent_at FROM message WHERE status = $1 ORDER BY id ASC", api.Sent)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	messages := []model.Message{}
+	messages := []api.Message{}
 	for rows.Next() {
-		var m model.Message
-		err := rows.Scan(&m.ID, &m.Content, &m.Recipient, &m.Status, &m.SentAt)
+		var m api.Message
+		err := rows.Scan(&m.Id, &m.Content, &m.Recipient, &m.Status, &m.SentAt)
 		if err != nil {
 			return nil, err
 		}
@@ -110,13 +111,13 @@ func (d *Database) FetchSentMessages() ([]model.Message, error) {
 func (d *Database) MarkMessageAsSent(id int, sentAt time.Time) error {
 	_, err := d.Conn.Exec(
 		"UPDATE message SET status = ?, sent_at = ? WHERE id = ?",
-		model.StatusSent, sentAt.Format(time.RFC3339), id,
+		api.Sent, sentAt.Format(time.RFC3339), id,
 	)
 	return err
 }
 
 // MarkMessageAsInvalid updates the status of a message to invalid
 func (d *Database) MarkMessageAsInvalid(id int) error {
-	_, err := d.Conn.Exec("UPDATE message SET status = ? WHERE id = ?", model.StatusInvalid, id)
+	_, err := d.Conn.Exec("UPDATE message SET status = ? WHERE id = ?", api.Invalid, id)
 	return err
 }

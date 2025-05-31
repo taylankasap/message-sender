@@ -5,9 +5,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/taylankasap/message-sender/api"
+
 	"github.com/stretchr/testify/require"
 	"github.com/taylankasap/message-sender/db"
-	"github.com/taylankasap/message-sender/model"
 )
 
 func TestNew(t *testing.T) {
@@ -53,7 +54,7 @@ func TestDatabase_FetchUnsentMessages(t *testing.T) {
 		require.Len(tt, msgs, 2)
 
 		for _, m := range msgs {
-			require.Equal(tt, model.StatusUnsent, m.Status)
+			require.Equal(tt, api.Unsent, m.Status)
 		}
 	})
 }
@@ -75,18 +76,18 @@ func TestDatabase_MarkMessageAsSent(t *testing.T) {
 		require.NoError(tt, database.Seed())
 
 		var id int
-		row := database.Conn.QueryRow("SELECT id FROM message WHERE status = ?", model.StatusUnsent)
+		row := database.Conn.QueryRow("SELECT id FROM message WHERE status = ?", api.Unsent)
 		require.NoError(tt, row.Scan(&id))
 
 		expectedSentAt := time.Now()
 		err = database.MarkMessageAsSent(id, expectedSentAt)
 		require.NoError(tt, err)
 
-		var actualStatus model.MessageStatus
+		var actualStatus api.MessageStatus
 		var actualSentAt string
 		row = database.Conn.QueryRow("SELECT status, sent_at FROM message WHERE id = ?", id)
 		require.NoError(tt, row.Scan(&actualStatus, &actualSentAt))
-		require.Equal(tt, model.StatusSent, actualStatus)
+		require.Equal(tt, api.Sent, actualStatus)
 
 		parsedSentAt, err := time.Parse(time.RFC3339, actualSentAt)
 		require.NoError(tt, err)
@@ -111,15 +112,15 @@ func TestDatabase_MarkMessageAsInvalid(t *testing.T) {
 		require.NoError(tt, database.Seed())
 
 		var id int
-		row := database.Conn.QueryRow("SELECT id FROM message WHERE status = ?", model.StatusUnsent)
+		row := database.Conn.QueryRow("SELECT id FROM message WHERE status = ?", api.Unsent)
 		require.NoError(tt, row.Scan(&id))
 
 		err = database.MarkMessageAsInvalid(id)
 		require.NoError(tt, err)
 
-		var actualStatus model.MessageStatus
+		var actualStatus api.MessageStatus
 		row = database.Conn.QueryRow("SELECT status FROM message WHERE id = ?", id)
 		require.NoError(tt, row.Scan(&actualStatus))
-		require.Equal(tt, model.StatusInvalid, actualStatus)
+		require.Equal(tt, api.Invalid, actualStatus)
 	})
 }

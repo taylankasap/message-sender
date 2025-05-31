@@ -6,9 +6,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/taylankasap/message-sender/api"
+
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/require"
-	"github.com/taylankasap/message-sender/model"
 	somethirdparty "github.com/taylankasap/message-sender/some_third_party"
 	"go.uber.org/mock/gomock"
 )
@@ -20,20 +21,20 @@ func TestMessageDispatcher_Start(t *testing.T) {
 	mockClient := somethirdparty.NewMockClientWithResponsesInterface(ctrl)
 
 	t.Run("it should start dispatching the first batch of messages without waiting the period", func(tt *testing.T) {
-		fakeMsg := model.Message{
-			ID:        1,
+		fakeMsg := api.Message{
+			Id:        1,
 			Content:   "Hello",
 			Recipient: "+1234567890",
-			Status:    model.StatusUnsent,
+			Status:    api.Unsent,
 		}
 
 		// these should be called once
-		mockDB.EXPECT().FetchUnsentMessages(1).Return([]model.Message{fakeMsg}, nil).Times(1)
+		mockDB.EXPECT().FetchUnsentMessages(1).Return([]api.Message{fakeMsg}, nil).Times(1)
 		mockClient.EXPECT().SendMessageWithResponse(gomock.Any(), gomock.Any(), gomock.Any()).Return(
 			&somethirdparty.SendMessageResponse{JSON202: &somethirdparty.APIResponse{MessageId: "dummy-message-id"}},
 			nil,
 		).Times(1)
-		mockDB.EXPECT().MarkMessageAsSent(fakeMsg.ID, gomock.Any()).Return(nil).Times(1)
+		mockDB.EXPECT().MarkMessageAsSent(fakeMsg.Id, gomock.Any()).Return(nil).Times(1)
 
 		dispatcher := &MessageDispatcher{
 			DB:        mockDB,
@@ -89,18 +90,18 @@ func TestMessageDispatcher_processUnsentMessages(t *testing.T) {
 		mockClient := somethirdparty.NewMockClientWithResponsesInterface(ctrl)
 		mockRedis := NewMockRedisCache(ctrl)
 
-		msg := model.Message{
-			ID: 123,
+		msg := api.Message{
+			Id: 123,
 		}
 
-		mockDB.EXPECT().FetchUnsentMessages(gomock.Any()).Return([]model.Message{msg}, nil)
+		mockDB.EXPECT().FetchUnsentMessages(gomock.Any()).Return([]api.Message{msg}, nil)
 		mockClient.EXPECT().SendMessageWithResponse(gomock.Any(), somethirdparty.Message{}).Return(
 			&somethirdparty.SendMessageResponse{
 				JSON202: &somethirdparty.APIResponse{},
 			},
 			nil,
 		)
-		mockDB.EXPECT().MarkMessageAsSent(msg.ID, gomock.Any()).Return(nil)
+		mockDB.EXPECT().MarkMessageAsSent(msg.Id, gomock.Any()).Return(nil)
 
 		cmd := redis.NewStatusCmd(context.Background())
 		cmd.SetVal("OK")
@@ -117,11 +118,11 @@ func TestMessageDispatcher_processUnsentMessages(t *testing.T) {
 	t.Run("error - should mark message as invalid if message is too long", func(tt *testing.T) {
 		mockDB := NewMockDBInterface(ctrl)
 
-		msg := model.Message{
+		msg := api.Message{
 			Content: string(make([]byte, 161)),
 		}
-		mockDB.EXPECT().FetchUnsentMessages(gomock.Any()).Return([]model.Message{msg}, nil)
-		mockDB.EXPECT().MarkMessageAsInvalid(msg.ID).Return(nil)
+		mockDB.EXPECT().FetchUnsentMessages(gomock.Any()).Return([]api.Message{msg}, nil)
+		mockDB.EXPECT().MarkMessageAsInvalid(msg.Id).Return(nil)
 
 		d := &MessageDispatcher{
 			DB: mockDB,

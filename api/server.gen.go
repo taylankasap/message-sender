@@ -31,7 +31,7 @@ type Message struct {
 	Content   string        `json:"content"`
 	Id        int           `json:"id"`
 	Recipient string        `json:"recipient"`
-	SentAt    time.Time     `json:"sentAt"`
+	SentAt    *time.Time    `json:"sentAt,omitempty"`
 	Status    MessageStatus `json:"status"`
 }
 
