@@ -29,7 +29,7 @@ func TestMessageDispatcher_Start(t *testing.T) {
 		}
 
 		// these should be called once
-		mockDB.EXPECT().FetchUnsentMessages(1).Return([]api.Message{fakeMsg}, nil).Times(1)
+		mockDB.EXPECT().GetUnsentMessages(1).Return([]api.Message{fakeMsg}, nil).Times(1)
 		mockClient.EXPECT().SendMessageWithResponse(gomock.Any(), gomock.Any(), gomock.Any()).Return(
 			&somethirdparty.SendMessageResponse{JSON202: &somethirdparty.APIResponse{MessageId: "dummy-message-id"}},
 			nil,
@@ -94,7 +94,7 @@ func TestMessageDispatcher_processUnsentMessages(t *testing.T) {
 			Id: 123,
 		}
 
-		mockDB.EXPECT().FetchUnsentMessages(gomock.Any()).Return([]api.Message{msg}, nil)
+		mockDB.EXPECT().GetUnsentMessages(gomock.Any()).Return([]api.Message{msg}, nil)
 		mockClient.EXPECT().SendMessageWithResponse(gomock.Any(), somethirdparty.Message{}).Return(
 			&somethirdparty.SendMessageResponse{
 				JSON202: &somethirdparty.APIResponse{},
@@ -121,7 +121,7 @@ func TestMessageDispatcher_processUnsentMessages(t *testing.T) {
 		msg := api.Message{
 			Content: string(make([]byte, 161)),
 		}
-		mockDB.EXPECT().FetchUnsentMessages(gomock.Any()).Return([]api.Message{msg}, nil)
+		mockDB.EXPECT().GetUnsentMessages(gomock.Any()).Return([]api.Message{msg}, nil)
 		mockDB.EXPECT().MarkMessageAsInvalid(msg.Id).Return(nil)
 
 		d := &MessageDispatcher{
@@ -134,7 +134,7 @@ func TestMessageDispatcher_processUnsentMessages(t *testing.T) {
 		mockDB := NewMockDBInterface(ctrl)
 		mockClient := somethirdparty.NewMockClientWithResponsesInterface(ctrl)
 
-		mockDB.EXPECT().FetchUnsentMessages(gomock.Any()).Return(nil, fmt.Errorf("dummy error"))
+		mockDB.EXPECT().GetUnsentMessages(gomock.Any()).Return(nil, fmt.Errorf("dummy error"))
 		mockClient.EXPECT().SendMessageWithResponse(gomock.Any(), gomock.Any()).Return(
 			nil,
 			nil,

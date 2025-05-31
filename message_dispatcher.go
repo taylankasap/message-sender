@@ -16,7 +16,7 @@ import (
 
 //go:generate go tool mockgen --package=main --destination=mock_db_interface.go . DBInterface
 type DBInterface interface {
-	FetchUnsentMessages(limit int) ([]api.Message, error)
+	GetUnsentMessages(limit int) ([]api.Message, error)
 	FetchSentMessages() ([]api.Message, error)
 	MarkMessageAsSent(id int, sentAt time.Time) error
 	MarkMessageAsInvalid(id int) error
@@ -80,7 +80,7 @@ func (d *MessageDispatcher) Start() {
 }
 
 func (d *MessageDispatcher) processUnsentMessages() {
-	messages, err := d.DB.FetchUnsentMessages(d.BatchSize)
+	messages, err := d.DB.GetUnsentMessages(d.BatchSize)
 	if err != nil {
 		log.Printf("failed to fetch unsent messages: %v", err)
 		return

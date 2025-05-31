@@ -56,19 +56,19 @@ func (mr *MockDBInterfaceMockRecorder) FetchSentMessages() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchSentMessages", reflect.TypeOf((*MockDBInterface)(nil).FetchSentMessages))
 }
 
-// FetchUnsentMessages mocks base method.
-func (m *MockDBInterface) FetchUnsentMessages(limit int) ([]api.Message, error) {
+// GetUnsentMessages mocks base method.
+func (m *MockDBInterface) GetUnsentMessages(limit int) ([]api.Message, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FetchUnsentMessages", limit)
+	ret := m.ctrl.Call(m, "GetUnsentMessages", limit)
 	ret0, _ := ret[0].([]api.Message)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FetchUnsentMessages indicates an expected call of FetchUnsentMessages.
-func (mr *MockDBInterfaceMockRecorder) FetchUnsentMessages(limit any) *gomock.Call {
+// GetUnsentMessages indicates an expected call of GetUnsentMessages.
+func (mr *MockDBInterfaceMockRecorder) GetUnsentMessages(limit any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchUnsentMessages", reflect.TypeOf((*MockDBInterface)(nil).FetchUnsentMessages), limit)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUnsentMessages", reflect.TypeOf((*MockDBInterface)(nil).GetUnsentMessages), limit)
 }
 
 // MarkMessageAsInvalid mocks base method.

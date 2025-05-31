@@ -33,7 +33,7 @@ func TestNew(t *testing.T) {
 	})
 }
 
-func TestDatabase_FetchUnsentMessages(t *testing.T) {
+func TestDatabase_GetUnsentMessages(t *testing.T) {
 	t.Run("it should fetch unsent messages", func(tt *testing.T) {
 		testFile := "test_db_fetch_unsent.sqlite3"
 		_ = os.Remove(testFile)
@@ -49,7 +49,7 @@ func TestDatabase_FetchUnsentMessages(t *testing.T) {
 
 		require.NoError(tt, database.Seed())
 
-		msgs, err := database.FetchUnsentMessages(2)
+		msgs, err := database.GetUnsentMessages(2)
 		require.NoError(tt, err)
 		require.Len(tt, msgs, 2)
 

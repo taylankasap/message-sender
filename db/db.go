@@ -65,8 +65,8 @@ func (d *Database) Seed() error {
 	return err
 }
 
-// FetchUnsentMessages fetches up to n unsent messages from the database
-func (d *Database) FetchUnsentMessages(limit int) ([]api.Message, error) {
+// GetUnsentMessages fetches up to n unsent messages from the database
+func (d *Database) GetUnsentMessages(limit int) ([]api.Message, error) {
 	rows, err := d.Conn.Query("SELECT id, content, recipient, status, sent_at FROM message WHERE status = $1 ORDER BY id ASC LIMIT $2", api.Unsent, limit)
 	if err != nil {
 		return nil, err
