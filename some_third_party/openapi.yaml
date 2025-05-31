@@ -3,7 +3,7 @@ info:
   version: 1.0.0
   title: Some Third Party Messaging API
 servers:
-  - url: https://webhook.site/66dd5a6b-2d37-4f8c-9d19-84ed2d7ed94d
+  - url: https://webhook.site/7f22bdd7-ae91-48ca-be94-90bc6688bac1
     description: Mock messaging API for testing
 paths:
   /send-message:
