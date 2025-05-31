@@ -39,17 +39,17 @@ func (m *MockDBInterface) EXPECT() *MockDBInterfaceMockRecorder {
 	return m.recorder
 }
 
-// FetchSentMessages mocks base method.
-func (m *MockDBInterface) FetchSentMessages() ([]Message, error) {
+// GetSentMessages mocks base method.
+func (m *MockDBInterface) GetSentMessages() ([]Message, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FetchSentMessages")
+	ret := m.ctrl.Call(m, "GetSentMessages")
 	ret0, _ := ret[0].([]Message)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FetchSentMessages indicates an expected call of FetchSentMessages.
-func (mr *MockDBInterfaceMockRecorder) FetchSentMessages() *gomock.Call {
+// GetSentMessages indicates an expected call of GetSentMessages.
+func (mr *MockDBInterfaceMockRecorder) GetSentMessages() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchSentMessages", reflect.TypeOf((*MockDBInterface)(nil).FetchSentMessages))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSentMessages", reflect.TypeOf((*MockDBInterface)(nil).GetSentMessages))
 }

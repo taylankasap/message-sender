@@ -70,7 +70,7 @@ func TestServer_GetSentMessages(t *testing.T) {
 			{Id: 2, Content: "World!", Recipient: "+9876543210", Status: "sent", SentAt: &t1Parsed},
 		}
 
-		mockDB.EXPECT().FetchSentMessages().Return(expectedMessages, nil)
+		mockDB.EXPECT().GetSentMessages().Return(expectedMessages, nil)
 
 		r := httptest.NewRequest("GET", "/sent-messages", nil)
 		w := httptest.NewRecorder()
@@ -91,7 +91,7 @@ func TestServer_GetSentMessages(t *testing.T) {
 
 		expectedMessages := []Message{}
 
-		mockDB.EXPECT().FetchSentMessages().Return(expectedMessages, nil)
+		mockDB.EXPECT().GetSentMessages().Return(expectedMessages, nil)
 
 		r := httptest.NewRequest("GET", "/sent-messages", nil)
 		w := httptest.NewRecorder()
@@ -108,7 +108,7 @@ func TestServer_GetSentMessages(t *testing.T) {
 		mockDB := NewMockDBInterface(ctrl)
 		s := Server{DB: mockDB}
 
-		mockDB.EXPECT().FetchSentMessages().Return(nil, fmt.Errorf("dummy error"))
+		mockDB.EXPECT().GetSentMessages().Return(nil, fmt.Errorf("dummy error"))
 
 		r := httptest.NewRequest("GET", "/sent-messages", nil)
 		w := httptest.NewRecorder()

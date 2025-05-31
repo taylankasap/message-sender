@@ -86,8 +86,8 @@ func (d *Database) GetUnsentMessages(limit int) ([]api.Message, error) {
 	return messages, nil
 }
 
-// FetchSentMessages fetches all sent messages from the database
-func (d *Database) FetchSentMessages() ([]api.Message, error) {
+// GetSentMessages fetches all sent messages from the database
+func (d *Database) GetSentMessages() ([]api.Message, error) {
 	rows, err := d.Conn.Query("SELECT id, content, recipient, status, sent_at FROM message WHERE status = $1 ORDER BY id ASC", api.Sent)
 	if err != nil {
 		return nil, err

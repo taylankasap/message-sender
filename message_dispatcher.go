@@ -17,7 +17,7 @@ import (
 //go:generate go tool mockgen --package=main --destination=mock_db_interface.go . DBInterface
 type DBInterface interface {
 	GetUnsentMessages(limit int) ([]api.Message, error)
-	FetchSentMessages() ([]api.Message, error)
+	GetSentMessages() ([]api.Message, error)
 	MarkMessageAsSent(id int, sentAt time.Time) error
 	MarkMessageAsInvalid(id int) error
 }

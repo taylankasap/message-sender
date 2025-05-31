@@ -18,7 +18,7 @@ type ResumePauser interface {
 
 //go:generate go tool mockgen --package=api --destination=mock_db_interface.go . DBInterface
 type DBInterface interface {
-	FetchSentMessages() ([]Message, error)
+	GetSentMessages() ([]Message, error)
 }
 
 func NewServer(database DBInterface, resumePauser ResumePauser) Server {
@@ -46,7 +46,7 @@ func (s Server) ChangeState(w http.ResponseWriter, r *http.Request, params Chang
 
 // GetSentMessages returns all sent messages
 func (s Server) GetSentMessages(w http.ResponseWriter, r *http.Request) {
-	msgs, err := s.DB.FetchSentMessages()
+	msgs, err := s.DB.GetSentMessages()
 	if err != nil {
 		http.Error(w, "failed to fetch sent messages", http.StatusInternalServerError)
 		return
