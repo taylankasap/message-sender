@@ -1,5 +1,5 @@
-package: main
+package: api
 generate:
   std-http-server: true
   models: true
-output: api_server.gen.go
+output: server.gen.go

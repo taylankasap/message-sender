@@ -1,8 +1,10 @@
-package main
+package api
 
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/taylankasap/message-sender/model"
 )
 
 type Server struct {
@@ -10,10 +12,15 @@ type Server struct {
 	resumePauser ResumePauser
 }
 
-//go:generate go tool mockgen --package=main --destination=mock_resume_pauser.go . ResumePauser
+//go:generate go tool mockgen --package=api --destination=mock_resume_pauser.go . ResumePauser
 type ResumePauser interface {
 	Resume()
 	Pause()
+}
+
+//go:generate go tool mockgen --package=api --destination=mock_db_interface.go . DBInterface
+type DBInterface interface {
+	FetchSentMessages() ([]model.Message, error)
 }
 
 func NewServer(database DBInterface, resumePauser ResumePauser) Server {

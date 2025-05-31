@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/taylankasap/message-sender/api"
+
 	"github.com/taylankasap/message-sender/db"
 	somethirdparty "github.com/taylankasap/message-sender/some_third_party"
 )
@@ -43,11 +45,11 @@ func main() {
 	go dispatcher.Start()
 
 	// API server
-	server := NewServer(database, dispatcher)
+	server := api.NewServer(database, dispatcher)
 
 	r := http.NewServeMux()
 
-	h := HandlerFromMux(server, r)
+	h := api.HandlerFromMux(server, r)
 
 	s := &http.Server{
 		Handler: h,
