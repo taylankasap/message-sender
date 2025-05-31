@@ -1,0 +1,54 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Some Third Party Messaging API
+servers:
+  - url: https://webhook.site/66dd5a6b-2d37-4f8c-9d19-84ed2d7ed94d
+    description: Mock messaging API for testing
+paths:
+  /send-message:
+    post:
+      summary: Send a message to a phone number
+      description: >
+        This endpoint allows you to send a message to a specified phone number.
+        The request must include the recipient's phone number and the message content.
+      operationId: sendMessage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '202':
+          description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIResponse'
+components:
+  schemas:
+    Message:
+      type: object
+      required:
+        - to
+        - content
+      properties:
+        to:
+          type: string
+          example: "+905551111111"
+        content:
+          type: string
+          example: "Hello, this is a test message."
+    APIResponse:
+      type: object
+      required:
+        - message
+        - messageId
+      properties:
+        message:
+          type: string
+          example: "Accepted"
+        messageId:
+          type: string
+          example: "67f2f8a8-ea58-4ed0-a6f9-ff217df4d849"

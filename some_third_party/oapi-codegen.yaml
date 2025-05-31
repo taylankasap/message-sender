@@ -1,0 +1,5 @@
+package: somethirdparty
+generate:
+  client: true
+  models: true
+output: gen.go
