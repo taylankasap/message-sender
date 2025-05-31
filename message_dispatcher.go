@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"strconv"
 	"sync"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/taylankasap/message-sender/model"
 	somethirdparty "github.com/taylankasap/message-sender/some_third_party"
 )
@@ -17,11 +20,18 @@ type DBInterface interface {
 	MarkMessageAsInvalid(id int) error
 }
 
+//go:generate go tool mockgen --package=main --destination=mock_redis_cache.go . RedisCache
+type RedisCache interface {
+	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.StatusCmd
+}
+
 type MessageDispatcher struct {
 	DB        DBInterface
 	Client    somethirdparty.ClientWithResponsesInterface
 	BatchSize int
 	Period    time.Duration
+
+	Redis RedisCache // Optional, can be nil
 
 	paused   bool
 	pauseMu  sync.Mutex
@@ -34,12 +44,13 @@ type MessageDispatcherConfig struct {
 	Period    time.Duration // Time period to wait before processing the next batch
 }
 
-func NewMessageDispatcher(database DBInterface, client somethirdparty.ClientWithResponsesInterface, config *MessageDispatcherConfig) *MessageDispatcher {
+func NewMessageDispatcher(database DBInterface, client somethirdparty.ClientWithResponsesInterface, redisClient RedisCache, config *MessageDispatcherConfig) *MessageDispatcher {
 	d := &MessageDispatcher{
 		DB:        database,
 		Client:    client,
 		BatchSize: config.BatchSize,
 		Period:    config.Period,
+		Redis:     redisClient,
 		pauseCh:   make(chan struct{}),
 		resumeCh:  make(chan struct{}),
 	}
@@ -105,6 +116,16 @@ func (d *MessageDispatcher) processUnsentMessages() {
 				log.Printf("failed to update message status (id=%d): %v", msg.ID, err)
 			}
 			log.Printf("Message sent: id=%d, messageId=%s, sentAt=%s", msg.ID, resp.JSON202.MessageId, now)
+
+			if d.Redis != nil {
+				redisKey := "sent_message:" + strconv.Itoa(msg.ID)
+				redisValue := fmt.Sprintf(`{"messageId":"%s","sentAt":"%s"}`, resp.JSON202.MessageId, now.Format(time.RFC3339))
+
+				err := d.Redis.Set(ctx, redisKey, redisValue, 0).Err()
+				if err != nil {
+					log.Printf("failed to cache sent message in Redis (id=%d): %v", msg.ID, err)
+				}
+			}
 		}(msg)
 	}
 	wg.Wait()

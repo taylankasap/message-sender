@@ -29,12 +29,17 @@ func main() {
 		panic(err)
 	}
 
+	// Redis
+	redisAddr := "redis:6379"
+	redisClient := NewRedisClient(redisAddr)
+
 	// message dispatcher
 	dispatcherConfig := &MessageDispatcherConfig{
 		Period:    2 * time.Minute,
 		BatchSize: 2,
 	}
-	dispatcher := NewMessageDispatcher(database, client, dispatcherConfig)
+
+	dispatcher := NewMessageDispatcher(database, client, redisClient, dispatcherConfig)
 	go dispatcher.Start()
 
 	// API server

@@ -12,6 +12,7 @@ docker compose up
 
 - The app will be available at http://localhost:8080
 - The SQLite database will be persisted in `db.sqlite3` in your project directory. The app will seed the database on first start-up.
+- You can enter the Redis container with `docker compose exec -it redis sh`
 
 # How to start the app
 

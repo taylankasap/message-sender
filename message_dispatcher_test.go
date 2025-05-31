@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"testing"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/require"
 	"github.com/taylankasap/message-sender/model"
 	somethirdparty "github.com/taylankasap/message-sender/some_third_party"
@@ -75,4 +78,71 @@ func TestMessageDispatcher_Resume(t *testing.T) {
 	// Calling Resume again should not panic or change state
 	d.Resume()
 	require.False(t, d.paused, "dispatcher should remain unpaused after second Resume() call")
+}
+
+func TestMessageDispatcher_processUnsentMessages(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	t.Run("success - should send the message, mark it as sent and cache to redis", func(tt *testing.T) {
+		mockDB := NewMockDBInterface(ctrl)
+		mockClient := somethirdparty.NewMockClientWithResponsesInterface(ctrl)
+		mockRedis := NewMockRedisCache(ctrl)
+
+		msg := model.Message{
+			ID: 123,
+		}
+
+		mockDB.EXPECT().FetchUnsentMessages(gomock.Any()).Return([]model.Message{msg}, nil)
+		mockClient.EXPECT().SendMessageWithResponse(gomock.Any(), somethirdparty.Message{}).Return(
+			&somethirdparty.SendMessageResponse{
+				JSON202: &somethirdparty.APIResponse{},
+			},
+			nil,
+		)
+		mockDB.EXPECT().MarkMessageAsSent(msg.ID, gomock.Any()).Return(nil)
+
+		cmd := redis.NewStatusCmd(context.Background())
+		cmd.SetVal("OK")
+		mockRedis.EXPECT().Set(gomock.Any(), "sent_message:123", gomock.Any(), time.Duration(0)).Return(cmd)
+
+		d := &MessageDispatcher{
+			DB:     mockDB,
+			Client: mockClient,
+			Redis:  mockRedis,
+		}
+		d.processUnsentMessages()
+	})
+
+	t.Run("error - should mark message as invalid if message is too long", func(tt *testing.T) {
+		mockDB := NewMockDBInterface(ctrl)
+
+		msg := model.Message{
+			Content: string(make([]byte, 161)),
+		}
+		mockDB.EXPECT().FetchUnsentMessages(gomock.Any()).Return([]model.Message{msg}, nil)
+		mockDB.EXPECT().MarkMessageAsInvalid(msg.ID).Return(nil)
+
+		d := &MessageDispatcher{
+			DB: mockDB,
+		}
+		d.processUnsentMessages()
+	})
+
+	t.Run("error - should not call return if DB fetch fails", func(tt *testing.T) {
+		mockDB := NewMockDBInterface(ctrl)
+		mockClient := somethirdparty.NewMockClientWithResponsesInterface(ctrl)
+
+		mockDB.EXPECT().FetchUnsentMessages(gomock.Any()).Return(nil, fmt.Errorf("dummy error"))
+		mockClient.EXPECT().SendMessageWithResponse(gomock.Any(), gomock.Any()).Return(
+			nil,
+			nil,
+		).Times(0) // should not be called
+
+		d := &MessageDispatcher{
+			DB: mockDB,
+		}
+
+		d.processUnsentMessages()
+	})
 }

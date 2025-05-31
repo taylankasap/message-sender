@@ -5,3 +5,9 @@ services:
       - "8080:8080"
     volumes:
       - ./db.sqlite3:/app/db.sqlite3
+    depends_on:
+      - redis
+  redis:
+    image: redis:8-alpine
+    ports:
+      - "6379:6379"
