@@ -14,6 +14,7 @@ import (
 type DBInterface interface {
 	FetchUnsentMessages(limit int) ([]model.Message, error)
 	MarkMessageAsSent(id int, sentAt time.Time) error
+	MarkMessageAsInvalid(id int) error
 }
 
 type MessageDispatcher struct {
@@ -77,6 +78,14 @@ func (d *MessageDispatcher) processUnsentMessages() {
 		wg.Add(1)
 		go func(msg model.Message) {
 			defer wg.Done()
+			if len(msg.Content) > 160 {
+				log.Printf("message (id=%d) exceeds 160 character limit, marking as invalid", msg.ID)
+				err = d.DB.MarkMessageAsInvalid(msg.ID)
+				if err != nil {
+					log.Printf("failed to mark message as invalid (id=%d): %v", msg.ID, err)
+				}
+				return
+			}
 			ctx := context.Background()
 			resp, err := d.Client.SendMessageWithResponse(ctx, somethirdparty.Message{
 				Content: msg.Content,

@@ -93,3 +93,33 @@ func TestDatabase_MarkMessageAsSent(t *testing.T) {
 		require.WithinDuration(tt, expectedSentAt.UTC(), parsedSentAt.UTC(), time.Second)
 	})
 }
+
+func TestDatabase_MarkMessageAsInvalid(t *testing.T) {
+	t.Run("it should mark a message as invalid", func(tt *testing.T) {
+		testFile := "test_db_mark_invalid.sqlite3"
+		_ = os.Remove(testFile)
+
+		database, err := db.New(&db.Config{Filename: testFile})
+		require.NoError(tt, err)
+		require.NotNil(tt, database.Conn)
+
+		defer func() {
+			database.Conn.Close()
+			_ = os.Remove(testFile)
+		}()
+
+		require.NoError(tt, database.Seed())
+
+		var id int
+		row := database.Conn.QueryRow("SELECT id FROM message WHERE status = ?", model.StatusUnsent)
+		require.NoError(tt, row.Scan(&id))
+
+		err = database.MarkMessageAsInvalid(id)
+		require.NoError(tt, err)
+
+		var actualStatus model.MessageStatus
+		row = database.Conn.QueryRow("SELECT status FROM message WHERE id = ?", id)
+		require.NoError(tt, row.Scan(&actualStatus))
+		require.Equal(tt, model.StatusInvalid, actualStatus)
+	})
+}

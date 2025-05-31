@@ -5,8 +5,9 @@ import "time"
 type MessageStatus string
 
 const (
-	StatusUnsent MessageStatus = "unsent"
-	StatusSent   MessageStatus = "sent"
+	StatusUnsent  MessageStatus = "unsent"
+	StatusSent    MessageStatus = "sent"
+	StatusInvalid MessageStatus = "invalid"
 )
 
 type Message struct {

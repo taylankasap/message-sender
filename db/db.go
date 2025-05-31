@@ -93,3 +93,9 @@ func (d *Database) MarkMessageAsSent(id int, sentAt time.Time) error {
 	)
 	return err
 }
+
+// MarkMessageAsInvalid updates the status of a message to invalid
+func (d *Database) MarkMessageAsInvalid(id int) error {
+	_, err := d.Conn.Exec("UPDATE message SET status = ? WHERE id = ?", model.StatusInvalid, id)
+	return err
+}

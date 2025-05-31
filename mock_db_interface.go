@@ -56,6 +56,20 @@ func (mr *MockDBInterfaceMockRecorder) FetchUnsentMessages(limit any) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchUnsentMessages", reflect.TypeOf((*MockDBInterface)(nil).FetchUnsentMessages), limit)
 }
 
+// MarkMessageAsInvalid mocks base method.
+func (m *MockDBInterface) MarkMessageAsInvalid(id int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MarkMessageAsInvalid", id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// MarkMessageAsInvalid indicates an expected call of MarkMessageAsInvalid.
+func (mr *MockDBInterfaceMockRecorder) MarkMessageAsInvalid(id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MarkMessageAsInvalid", reflect.TypeOf((*MockDBInterface)(nil).MarkMessageAsInvalid), id)
+}
+
 // MarkMessageAsSent mocks base method.
 func (m *MockDBInterface) MarkMessageAsSent(id int, sentAt time.Time) error {
 	m.ctrl.T.Helper()
