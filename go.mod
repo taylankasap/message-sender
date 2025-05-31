@@ -2,7 +2,10 @@ module github.com/taylankasap/message-sender
 
 go 1.24.3
 
-require github.com/mattn/go-sqlite3 v1.14.22
+require (
+	github.com/mattn/go-sqlite3 v1.14.22
+	go.uber.org/mock v0.5.2
+)
 
 require (
 	4d63.com/gocheckcompilerdirectives v1.3.0 // indirect
@@ -210,5 +213,6 @@ require (
 tool (
 	github.com/golangci/golangci-lint/cmd/golangci-lint
 	github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen
+	go.uber.org/mock/mockgen
 	golang.org/x/tools/cmd/goimports
 )
